@@ -74,6 +74,7 @@ class Training:
 
     def show_training_info(self) -> InfoMessage:
         """Вернуть информационное сообщение о выполненной тренировке."""
+
         distance = self.get_distance()
         speed = self.get_mean_speed()
         calories = self.get_spent_calories()
