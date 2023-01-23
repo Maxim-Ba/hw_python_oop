@@ -1,61 +1,66 @@
-LEN_STEP_WATER: float = 1.38
-LEN_STEP_LAND: float = 0.65
+from dataclasses import dataclass, asdict
+
+
 SECONDS_IN_MINUTE: int = 60
 
 
-def toFixed(numObj: float, digits: int = 0) -> str:
-    """Получить число с определенным кол-вом знаков после запятой."""
-
-    return f"{numObj:.{digits}f}"
-
-
+@dataclass
 class InfoMessage:
     """Информационное сообщение о тренировке."""
 
-    def __init__(
-        self,
-        training_type: str,
-        duration: float,
-        distance: float,
-        speed: float,
-        calories: float,
-    ) -> None:
-        self.training_type = training_type
-        self.duration = toFixed(float(duration), 3)
-        self.distance = toFixed(distance, 3)
-        self.speed = toFixed(speed, 3)
-        self.calories = toFixed(calories, 3)
+    DESCRIPTIONS_FOR_MESSGES = {
+        "training_type": "Тип тренировки",
+        "duration": "Длительность",
+        "distance": "Дистанция",
+        "speed": "Ср. скорость",
+        "calories": "Потрачено ккал",
+    }
+
+    training_type: str
+    duration: float
+    distance: float
+    speed: float
+    calories: float
 
     def get_message(self) -> str:
         """Вернуть информационное сообщение о тренировке."""
 
         return (
-            f"Тип тренировки: {self.training_type}; "
-            f"Длительность: {self.duration} ч.; "
-            f"Дистанция: {self.distance} км; "
-            f"Ср. скорость: {self.speed} км/ч; "
-            f"Потрачено ккал: {self.calories}."
+            "{0}: {1}; ".format(
+                InfoMessage.DESCRIPTIONS_FOR_MESSGES["training_type"],
+                asdict(self)["training_type"],
+            )
+            + "{0}: {1:.3f} ч.; ".format(
+                InfoMessage.DESCRIPTIONS_FOR_MESSGES["duration"],
+                asdict(self)["duration"],
+            )
+            + "{0}: {1:.3f} км; ".format(
+                InfoMessage.DESCRIPTIONS_FOR_MESSGES["distance"],
+                asdict(self)["distance"],
+            )
+            + "{0}: {1:.3f} км/ч; ".format(
+                InfoMessage.DESCRIPTIONS_FOR_MESSGES["speed"],
+                asdict(self)["speed"],
+            )
+            + "{0}: {1:.3f}.".format(
+                InfoMessage.DESCRIPTIONS_FOR_MESSGES["calories"],
+                asdict(self)["calories"],
+            )
         )
 
 
+@dataclass
 class Training:
     """Базовый класс тренировки."""
 
+    action: int
+    duration: float
+    weight: float
+
     MINUTES_IN_HOURS: int = 60
-
     M_IN_KM: int = 1000
-    LEN_STEP: float = LEN_STEP_LAND
-
-    def __init__(
-        self,
-        action: int,
-        duration: float,
-        weight: float,
-    ) -> None:
-        self.len_step = Training.LEN_STEP
-        self.action = action
-        self.duration = duration
-        self.weight = weight
+    LEN_STEP: float = 0.65
+    len_step = LEN_STEP
 
     def get_distance(self) -> float:
         """Получить дистанцию в км."""
@@ -70,7 +75,7 @@ class Training:
     def get_spent_calories(self) -> float:
         """Получить количество затраченных калорий."""
 
-        pass
+        raise NotImplementedError("Method must be defined")
 
     def show_training_info(self) -> InfoMessage:
         """Вернуть информационное сообщение о выполненной тренировке."""
@@ -80,7 +85,7 @@ class Training:
         calories = self.get_spent_calories()
 
         return InfoMessage(
-            self.__class__.__name__, self.duration, distance, speed, calories
+            type(self).__name__, self.duration, distance, speed, calories
         )
 
 
@@ -137,7 +142,7 @@ class Swimming(Training):
     """Тренировка: плавание."""
 
     KOEF_TWO_POOLS: int = 2
-    LEN_STEP = LEN_STEP_WATER
+    LEN_STEP: float = 1.38
     CALORIES_MEAN_SPEED_MULTIPLIER: float = 1.1
 
     def __init__(
@@ -173,11 +178,19 @@ class Swimming(Training):
         )
 
 
-traning_enum = {"SWM": Swimming, "RUN": Running, "WLK": SportsWalking}
-
-
-def read_package(workout_type: str, data: list) -> Training:
+def read_package(workout_type: str, data: list[float or int]) -> Training:
     """Прочитать данные полученные от датчиков. И вернуть обьект тренировки."""
+    traning_enum: dict[str, Training] = {
+        "SWM": Swimming,
+        "RUN": Running,
+        "WLK": SportsWalking,
+    }
+
+    try:
+        if workout_type not in traning_enum:
+            raise ValueError
+    except ValueError:
+        print("Такого типа тренировки нет!")
 
     return traning_enum[workout_type](*data)
 
