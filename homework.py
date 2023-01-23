@@ -85,12 +85,7 @@ class Training:
         calories = self.get_spent_calories()
 
         return InfoMessage(
-            # type(self).__name__, self.duration, distance, speed, calories
-            self.__class__.__name__,
-            self.duration,
-            distance,
-            speed,
-            calories,
+            type(self).__name__, self.duration, distance, speed, calories
         )
 
 
