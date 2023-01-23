@@ -1,4 +1,5 @@
 from dataclasses import dataclass, asdict
+from typing import List, Dict, Type
 
 
 SECONDS_IN_MINUTE: int = 60
@@ -178,9 +179,9 @@ class Swimming(Training):
         )
 
 
-def read_package(workout_type: str, data: list[float]) -> Training:
+def read_package(workout_type: str, data: List[int]) -> Training:
     """Прочитать данные полученные от датчиков. И вернуть обьект тренировки."""
-    traning_enum: dict[str, Training] = {
+    traning_enum: Dict[str, Type[Training]] = {
         "SWM": Swimming,
         "RUN": Running,
         "WLK": SportsWalking,
