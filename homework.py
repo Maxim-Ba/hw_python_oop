@@ -178,7 +178,7 @@ class Swimming(Training):
         )
 
 
-def read_package(workout_type: str, data: list[float or int]) -> Training:
+def read_package(workout_type: str, data: list[float]) -> Training:
     """Прочитать данные полученные от датчиков. И вернуть обьект тренировки."""
     traning_enum: dict[str, Training] = {
         "SWM": Swimming,
